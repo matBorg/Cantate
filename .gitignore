@@ -1,0 +1,27 @@
+# Ignora i file txt delle canzoni
+*.txt
+
+# Ignora i file di sistema
+.DS_Store
+Thumbs.db
+
+# Ignora le directory node_modules
+node_modules/
+
+# Ignora i file di configurazione locali
+.env
+.env.local
+.env.*.local
+
+# Ignora i file di build e distribuzione
+/build
+/dist
+
+# Ignora i file di configurazione per gli editor
+.idea
+.vscode/
+infoCantata.json
+canzoniDaScaricare.json
+Canzoni
+*.html
+*.pdf

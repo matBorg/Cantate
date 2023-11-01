@@ -1,0 +1,21 @@
+{
+  "name": "cantate",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "fs": "^0.0.1-security",
+    "html-pdf": "^3.0.1",
+    "path": "^0.12.7",
+    "pdfmake": "^0.2.7",
+    "puppeteer": "^21.4.1",
+    "request": "^2.88.2",
+    "requests": "^0.3.0"
+  }
+}
