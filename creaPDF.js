@@ -1,32 +1,71 @@
 const fs = require('fs');
 const path = require('path'); // Rinomina la variabile path
 const puppeteer = require('puppeteer');
-
-
 const filePath = './infoCantata.json';
 const rawData = fs.readFileSync(filePath, 'utf-8');
 const info = JSON.parse(rawData);
 
 const luogo = info.luogo;
 const data = info.data;
-const orario = info.orario;
 const canzoni = info.canzoni;
-
-// Parsifica il contenuto JSON
 
 const styles = `
   <style>
-    .title { font-size: 18px; font-weight: bold; margin: 10px 0; }
-    .author { font-size: 14px; margin: 10px 0; }
-    .chorus { font-size: 16px; font-style: italic; margin: 10px 0; }
-    .verse { font-size: 16px; margin: 10px 0; }
-    pre { white-space: pre-wrap; font-size: 16px; margin: 10px 0; }
+    .title {
+        font-size: 27px;
+        font-weight: bold;
+        margin: 10px 0;
+        font-family: Arial, sans-serif;
+    }
+    
+    .author {
+        font-size: 14px;
+        margin: 50px 0 0 5px;
+        font-family: Arial, sans-serif;
+    }
+
+    .chorus {
+        font-size: 12px;
+        font-style: italic;
+        font-family: Arial, sans-serif;
+        font-weight: normal;
+        margin: 10px 0;
+        line-height: 1.25;
+    }
+
+    .verse {
+        font-size: 12px;
+        font-family: Arial, sans-serif;
+        font-weight: normal;
+        margin: 10px 0;
+        line-height: 1.25;
+
+    }
+    pre {
+        white-space: pre-wrap;
+        font-size: 16px;
+        margin: 10px 0;
+    }
 
     .info-serata {
-        text-align: center;
-        font-size: 24px;
-        margin-top: 100px;
-      }
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        border-right: 1px solid black;
+        padding-right: 10px;
+        font-family: 'Kanit', sans-serif;
+    }
+    
+    .event-place {
+        font-size: 30px;
+        font-weight: bold;
+        font-family: 'Kanit', sans-serif;
+    }
+    
+    .event-date {
+        font-size: 25px;
+        font-family: 'Kanit', sans-serif;
+    }
     
     .title-author {
         display: flex;
@@ -34,20 +73,22 @@ const styles = `
         align-items: center;
         margin-bottom: 10px;
         margin-top: 20px;
-      }
-      .title { 
-        font-size: 18px; 
-        font-weight: bold; 
-        margin: 0;
-      }
-      .author { 
-        font-size: 14px; 
-        margin: 0;
-      }
+    }
+
+    hr { 
+        display: block;
+        margin-top: 0.5em;
+        margin-bottom: 0.5em;
+        margin-left: auto;
+        margin-right: auto;
+        border-style: inset;
+        border-width: 1px;
+    }
+
     .page-break {
           margin-bottom: 20px; /* Aggiunge spazio tra le pagine */
           page-break-before: always;
-        }
+    }
   </style>
 `;
 
@@ -84,6 +125,13 @@ function generateHTMLForFile(filePath, isLastFile) {
                 currentStyle = 'chorus';
                 content += '<div class="chorus">';
             }
+        } else if (line.startsWith('[')) {
+            // Inizia una sezione di ritornello
+            if (currentStyle !== 'verse') {
+                content += '</div>';  // Chiudi il div della sezione corrente se non è un ritornello
+                currentStyle = 'verse';
+                content += '<div class="verse">';
+            }
         } else if (line === '') {
             // Riga vuota, chiudi la sezione corrente se presente
             if (currentStyle !== '') {
@@ -106,10 +154,10 @@ function generateHTMLForFile(filePath, isLastFile) {
     <div class="title-author">
       <div>
         <span class="title">${title}</span>
-         | 
         <span class="author">${author}</span>
       </div>
     </div>
+    <hr>
     <pre>${content}</pre>
   `;
 
@@ -156,13 +204,15 @@ const htmlContent = `
     <!DOCTYPE html>
     <html>
     <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@100&display=swap" rel="stylesheet">
         ${styles}
     </head>
     <body>
-        <div class="song-info">
-            <p>Luogo: ${luogo}</p>
-            <p>Data: ${data}</p>
-            <p>Ora: ${orario}</p>
+        <div class="info-serata">
+            <p class="event-place">${luogo}</p>
+            <p class="event-date">${data}</p>
         </div>
         <div class="page-break"></div>
         ${textFiles.map((filePath, index) => generateHTMLForFile(filePath, index === totalSongs - 1)).join('')}
@@ -171,14 +221,16 @@ const htmlContent = `
 `;
 
 // Il resto del codice rimane invariato
-
-fs.writeFileSync('output.html', htmlContent, 'utf8')
+const outputFileName = data.replace(/\//g, '-')
+fs.writeFileSync(outputFileName + '.html', htmlContent, 'utf8')
 
 async function generatePDFFromHTML(htmlContent, outputPath) {
     const browser = await puppeteer.launch();
-    const page = await browser.newPage();
 
+    const page = await browser.newPage();
     await page.setContent(htmlContent);
+
+
 
     await page.pdf({
         path: outputPath, // Nome del file PDF generato
@@ -195,9 +247,8 @@ async function generatePDFFromHTML(htmlContent, outputPath) {
     await browser.close();
 }
 
-// Utilizza la funzione per generare il PDF
 
-generatePDFFromHTML(htmlContent, 'output.pdf')
+generatePDFFromHTML(htmlContent, outputFileName + '.pdf')
     .then(() => {
         console.log('PDF generato con successo.');
     })

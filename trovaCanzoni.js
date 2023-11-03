@@ -11,6 +11,23 @@ function formattaTestoCanzone(apiResponse) {
         .join('\n\n');  // Riunisce le strofe con spazi vuoti tra di loro
 }
 
+function capitalizeWords(str) {
+    // Dividi la stringa in parole utilizzando uno spazio come delimitatore
+    const words = str.split(' ');
+  
+    // Itera attraverso ciascuna parola e trasforma la prima lettera in maiuscolo
+    const capitalizedWords = words.map(word => {
+      if (word.length > 0) {
+        return word[0].toUpperCase() + word.slice(1);
+      } else {
+        return word; // Mantieni le parole vuote invariate
+      }
+    });
+  
+    // Unisci le parole capitalizzate per formare la stringa finale
+    return capitalizedWords.join(' ');
+  }
+  
 
 function scaricaTestoCanzone(nomeCanzone, nomeArtista) {
     // Costruisci l'URL per la richiesta GET all'API
@@ -42,7 +59,6 @@ function scaricaTestoCanzone(nomeCanzone, nomeArtista) {
                     formattedLines.push(line);
                 }
             }
-            // ... (Codice precedente) ...
 
             // Rimuovi [qualunque cosa tra parentesi quadre] o {qualunque cosa tra parentesi graffe} e aggiungi due a capo
 
@@ -54,7 +70,8 @@ function scaricaTestoCanzone(nomeCanzone, nomeArtista) {
 
 
             // Scrivi il testo su un file txt
-            const fileContent = `${nomeCanzone.toUpperCase()} | ${nomeArtista.toUpperCase()}\n\n${formattedText}`;
+
+            const fileContent = `${nomeCanzone.toUpperCase()} | ${capitalizeWords(nomeArtista)}\n\n${formattedText}`;
             fs.writeFileSync(`./Canzoni/${nomeCanzone}.txt`, fileContent, 'utf-8');
 
             console.log(`Testo della canzone '${nomeCanzone}' scaricato con successo.`);
