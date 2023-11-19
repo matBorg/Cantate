@@ -100,6 +100,7 @@ const songsToDownload = {}; // Oggetto per le canzoni da scaricare
 
 function generateHTMLForFile(filePath, isLastFile) {
     const fileContent = fs.readFileSync(filePath, 'utf8');
+    console.log(filePath)
     const lines = fileContent.split('\n');
     const titleAndAuthor = lines[0].split('|');
     const title = titleAndAuthor[0].trim();
@@ -111,14 +112,14 @@ function generateHTMLForFile(filePath, isLastFile) {
     for (let i = 1; i < lines.length; i++) {
         const line = lines[i].trim();
 
-        if (line.startsWith('[Strofa') || line.startsWith('[Verse')) {
+        if (line.startsWith('[Strofa') || line.startsWith('[Verse' )|| line.startsWith('[Couplette' )) {
             // Inizia una sezione di strofa
             if (currentStyle !== 'verse') {
                 content += '</div>';  // Chiudi il div della sezione corrente se non è una strofa
                 currentStyle = 'verse';
                 content += '<div class="verse">';
             }
-        } else if (line.startsWith('[Ritornello') || line.startsWith('[Chorus')) {
+        } else if (line.startsWith('[Ritornello') || line.startsWith('[Chorus') || line.startsWith('[Refrain' )) {
             // Inizia una sezione di ritornello
             if (currentStyle !== 'chorus') {
                 content += '</div>';  // Chiudi il div della sezione corrente se non è un ritornello
